@@ -1,0 +1,4 @@
+# Global attributes (Windows Git) — no blanket eol=lf on *; pairs with core.autocrlf true / core.eol crlf
+* text=auto
+*.sh text eol=lf
+*.bash text eol=lf

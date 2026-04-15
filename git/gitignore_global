@@ -1,0 +1,14 @@
+# Editor / IDE (global — applies to all repos via core.excludesfile)
+.vscode/
+.cursor/
+.history/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor swap / backup
+*.swp
+*.swo
+*~

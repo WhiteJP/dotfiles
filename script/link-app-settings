@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Symlink Cursor, VS Code, and RStudio user configs to this repo.
+# Run from bash (macOS, Linux, WSL, or Git Bash on Windows).
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+SETTINGS_SRC="$ROOT/editor/settings.json"
+RSTUDIO_SRC="$ROOT/rstudio/rstudio-prefs.json"
+
+for f in "$SETTINGS_SRC" "$RSTUDIO_SRC"; do
+  if [[ ! -f "$f" ]]; then
+    echo "error: missing required file: $f" >&2
+    exit 1
+  fi
+done
+
+is_windows() {
+  local u
+  u="$(uname -s 2>/dev/null || true)"
+  case "$u" in
+    MINGW* | MSYS* | CYGWIN*) return 0 ;;
+  esac
+  case "${OSTYPE:-}" in
+    msys | cygwin) return 0 ;;
+  esac
+  return 1
+}
+
+is_darwin() {
+  [[ "$(uname -s 2>/dev/null)" == "Darwin" ]]
+}
+
+# Install symlink: backs up existing file or wrong-symlink, skips if already correct.
+install_link() {
+  local src="$1" dest="$2"
+  local dest_dir parent target
+
+  dest_dir="$(dirname "$dest")"
+  mkdir -p "$dest_dir"
+
+  if [[ -L "$dest" ]]; then
+    target="$(readlink "$dest" || true)"
+    if [[ "$target" == "$src" ]]; then
+      echo "  ok (already linked): $dest"
+      return 0
+    fi
+    echo "  replacing symlink: $dest (was -> $target)"
+    rm -f "$dest"
+  elif [[ -e "$dest" ]]; then
+    parent="${dest}.bak.$(date +%Y%m%d%H%M%S)"
+    echo "  backing up existing file: $dest -> $parent"
+    mv "$dest" "$parent"
+  fi
+
+  ln -sf "$src" "$dest"
+  echo "  linked: $dest -> $src"
+}
+
+echo "Linking app settings from $ROOT"
+
+if is_windows; then
+  # Git Bash / MSYS: APPDATA is set (Roaming)
+  if [[ -z "${APPDATA:-}" ]]; then
+    echo "error: APPDATA is unset; run this script from Git Bash on Windows." >&2
+    exit 1
+  fi
+  # MSYS paths often use mixed separators; ln -sf accepts forward slashes
+  install_link "$SETTINGS_SRC" "$APPDATA/Cursor/User/settings.json"
+  install_link "$SETTINGS_SRC" "$APPDATA/Code/User/settings.json"
+  install_link "$RSTUDIO_SRC" "$APPDATA/RStudio/rstudio-prefs.json"
+elif is_darwin; then
+  install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Cursor/User/settings.json"
+  install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Code/User/settings.json"
+  install_link "$RSTUDIO_SRC" "$HOME/Library/Application Support/RStudio/rstudio-prefs.json"
+else
+  # Linux (including WSL when using Linux desktop apps)
+  local_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
+  install_link "$SETTINGS_SRC" "$local_cfg/Cursor/User/settings.json"
+  install_link "$SETTINGS_SRC" "$local_cfg/Code/User/settings.json"
+  install_link "$RSTUDIO_SRC" "$local_cfg/rstudio/rstudio-prefs.json"
+fi
+
+echo "Done."

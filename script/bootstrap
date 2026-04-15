@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Apply all machine defaults from this repo: global Git + Cursor/VS Code/RStudio symlinks.
+# Run from bash (macOS, Linux, WSL, or Git Bash on Windows).
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "== Git =="
+bash "$SCRIPT_DIR/bootstrap-git"
+echo
+echo "== Editor / RStudio symlinks =="
+bash "$SCRIPT_DIR/link-app-settings"
+echo
+echo "All done."

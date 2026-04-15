@@ -1,0 +1,14 @@
+{
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "workbench.colorCustomizations": {
+    "diffEditor.insertedTextBackground": "#2ea043aa",
+    "diffEditor.removedTextBackground": "#f85149aa",
+    "diffEditor.insertedTextBorder": "#00000000",
+    "diffEditor.removedTextBorder": "#00000000",
+    "diffEditor.insertedLineBackground": "#2ea04318",
+    "diffEditor.removedLineBackground": "#f8514918"
+  }
+}

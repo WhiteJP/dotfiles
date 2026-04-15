@@ -1,0 +1,4 @@
+# Global attributes (macOS / Linux / WSL) — wired via: git config --global core.attributesfile <path>
+* text=auto eol=lf
+*.sh text eol=lf
+*.bash text eol=lf

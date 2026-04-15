@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Configure global Git to use this repo's ignore/attributes and OS-appropriate EOL/filemode.
+# Run from bash (macOS, Linux, WSL, or Git Bash on Windows).
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+is_windows() {
+  local u
+  u="$(uname -s 2>/dev/null || true)"
+  case "$u" in
+    MINGW* | MSYS* | CYGWIN*) return 0 ;;
+  esac
+  case "${OSTYPE:-}" in
+    msys | cygwin) return 0 ;;
+  esac
+  return 1
+}
+
+IGNORE="$ROOT/git/gitignore_global"
+ATTR_UNIX="$ROOT/git/gitattributes_global.unix"
+ATTR_WIN="$ROOT/git/gitattributes_global.windows"
+
+for f in "$IGNORE" "$ATTR_UNIX" "$ATTR_WIN"; do
+  if [[ ! -f "$f" ]]; then
+    echo "error: missing required file: $f" >&2
+    exit 1
+  fi
+done
+
+git config --global core.excludesfile "$IGNORE"
+
+if is_windows; then
+  git config --global core.attributesfile "$ATTR_WIN"
+  git config --global core.autocrlf true
+  git config --global core.eol crlf
+  git config --global core.filemode false
+  echo "Configured Git (Windows profile):"
+else
+  git config --global core.attributesfile "$ATTR_UNIX"
+  git config --global core.autocrlf input
+  git config --global core.eol lf
+  git config --global core.filemode true
+  echo "Configured Git (Unix profile — includes macOS, Linux, WSL):"
+fi
+
+echo "  core.excludesfile=$IGNORE"
+echo "  core.attributesfile=$(git config --global core.attributesfile)"
+echo "  core.autocrlf=$(git config --global core.autocrlf)"
+echo "  core.eol=$(git config --global core.eol)"
+echo "  core.filemode=$(git config --global core.filemode)"
