@@ -58,9 +58,11 @@ Canonical copy: [`rstudio/rstudio-prefs.json`](rstudio/rstudio-prefs.json). Link
 
 | OS | Path |
 |----|------|
-| macOS | `~/Library/Application Support/RStudio/rstudio-prefs.json` |
+| macOS | `~/Library/Application Support/RStudio/rstudio-prefs.json` **and** `~/.config/rstudio/rstudio-prefs.json` |
 | Linux / WSL | `~/.config/rstudio/rstudio-prefs.json` |
 | Windows | `%APPDATA%\RStudio\rstudio-prefs.json` |
+
+Both macOS paths are linked because older (Qt-based) RStudio reads from `~/Library/Application Support/` while newer Electron-based RStudio (2023.09+) reads from `~/.config/rstudio/`.
 
 If the editor theme does not apply, open **Tools → Global Options → Appearance** and pick **Pastel on Dark** once; if the internal name differs, update the `editor_theme` value in this repo to match.
 

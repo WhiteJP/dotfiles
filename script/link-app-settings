@@ -75,6 +75,8 @@ elif is_darwin; then
   install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Cursor/User/settings.json"
   install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Code/User/settings.json"
   install_link "$RSTUDIO_SRC" "$HOME/Library/Application Support/RStudio/rstudio-prefs.json"
+  # Electron-based RStudio (2023.09+) reads from ~/.config/rstudio on macOS
+  install_link "$RSTUDIO_SRC" "$HOME/.config/rstudio/rstudio-prefs.json"
 else
   # Linux (including WSL when using Linux desktop apps)
   local_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
