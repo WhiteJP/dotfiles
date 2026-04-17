@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Symlink Cursor, VS Code, and RStudio user configs to this repo.
+# Symlink Cursor, VS Code, RStudio, and R user configs to this repo.
 # Run from bash (macOS, Linux, WSL, or Git Bash on Windows).
 
 set -euo pipefail
@@ -9,8 +9,9 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 SETTINGS_SRC="$ROOT/editor/settings.json"
 RSTUDIO_SRC="$ROOT/rstudio/rstudio-prefs.json"
+RPROFILE_SRC="$ROOT/r/.Rprofile"
 
-for f in "$SETTINGS_SRC" "$RSTUDIO_SRC"; do
+for f in "$SETTINGS_SRC" "$RSTUDIO_SRC" "$RPROFILE_SRC"; do
   if [[ ! -f "$f" ]]; then
     echo "error: missing required file: $f" >&2
     exit 1
@@ -71,18 +72,21 @@ if is_windows; then
   install_link "$SETTINGS_SRC" "$APPDATA/Cursor/User/settings.json"
   install_link "$SETTINGS_SRC" "$APPDATA/Code/User/settings.json"
   install_link "$RSTUDIO_SRC" "$APPDATA/RStudio/rstudio-prefs.json"
+  install_link "$RPROFILE_SRC" "$HOME/.Rprofile"
 elif is_darwin; then
   install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Cursor/User/settings.json"
   install_link "$SETTINGS_SRC" "$HOME/Library/Application Support/Code/User/settings.json"
   install_link "$RSTUDIO_SRC" "$HOME/Library/Application Support/RStudio/rstudio-prefs.json"
   # Electron-based RStudio (2023.09+) reads from ~/.config/rstudio on macOS
   install_link "$RSTUDIO_SRC" "$HOME/.config/rstudio/rstudio-prefs.json"
+  install_link "$RPROFILE_SRC" "$HOME/.Rprofile"
 else
   # Linux (including WSL when using Linux desktop apps)
   local_cfg="${XDG_CONFIG_HOME:-$HOME/.config}"
   install_link "$SETTINGS_SRC" "$local_cfg/Cursor/User/settings.json"
   install_link "$SETTINGS_SRC" "$local_cfg/Code/User/settings.json"
   install_link "$RSTUDIO_SRC" "$local_cfg/rstudio/rstudio-prefs.json"
+  install_link "$RPROFILE_SRC" "$HOME/.Rprofile"
 fi
 
 echo "Done."

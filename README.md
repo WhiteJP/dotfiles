@@ -1,6 +1,6 @@
 # Dotfiles
 
-Personal defaults for Git, Cursor, VS Code, and RStudio. Clone this repository anywhere on disk, then run **one script** to configure Git globally and symlink editor and RStudio settings.
+Personal defaults for Git, Cursor, VS Code, RStudio, and R. Clone this repository anywhere on disk, then run **one script** to configure Git globally and symlink editor, RStudio, and R settings.
 
 ## Quick start
 
@@ -16,7 +16,7 @@ Personal defaults for Git, Cursor, VS Code, and RStudio. Clone this repository a
 That will:
 
 - Set **global Git** options (ignore file, attributes, line endings, `filemode`) using [`script/bootstrap-git`](script/bootstrap-git).
-- **Symlink** [`editor/settings.json`](editor/settings.json) into Cursor and VS Code user config dirs, and [`rstudio/rstudio-prefs.json`](rstudio/rstudio-prefs.json) into RStudio’s prefs path for your OS.
+- **Symlink** [`editor/settings.json`](editor/settings.json) into Cursor and VS Code user config dirs, [`rstudio/rstudio-prefs.json`](rstudio/rstudio-prefs.json) into RStudio's prefs path, and [`r/.Rprofile`](r/.Rprofile) to `~/.Rprofile`.
 
 If a target file already exists and is not already a link to this repo, it is **renamed** to `*.bak.<timestamp>` next to the original name so nothing is lost silently.
 
@@ -28,7 +28,7 @@ Git-only (no app symlinks): `./script/bootstrap-git`
 
 | Setting | macOS / Linux / WSL | Windows (Git Bash / Git for Windows) |
 |--------|----------------------|--------------------------------------|
-| `core.excludesfile` | This repo’s `git/gitignore_global` | Same |
+| `core.excludesfile` | This repo's `git/gitignore_global` | Same |
 | `core.attributesfile` | `git/gitattributes_global.unix` | `git/gitattributes_global.windows` |
 | `core.autocrlf` | `input` | `true` |
 | `core.eol` | `lf` | `crlf` |
@@ -38,7 +38,7 @@ Git-only (no app symlinks): `./script/bootstrap-git`
 
 ### Global ignore patterns
 
-[`git/gitignore_global`](git/gitignore_global) ignores, among other things, `.vscode/`, `.cursor/`, `.history/`, and `.claude/` in **every** repository on this machine. To track any of those in a specific project, override in that repo’s `.gitignore` (for example `!.claude/` where appropriate) or use `git add -f` only when you intend to commit them.
+[`git/gitignore_global`](git/gitignore_global) ignores, among other things, `.vscode/`, `.cursor/`, `.history/`, and `.claude/` in **every** repository on this machine. To track any of those in a specific project, override in that repo's `.gitignore` (for example `!.claude/` where appropriate) or use `git add -f` only when you intend to commit them.
 
 ## Cursor and VS Code settings
 
@@ -66,6 +66,31 @@ Both macOS paths are linked because older (Qt-based) RStudio reads from `~/Libra
 
 If the editor theme does not apply, open **Tools → Global Options → Appearance** and pick **Pastel on Dark** once; if the internal name differs, update the `editor_theme` value in this repo to match.
 
+## R profile
+
+Canonical copy: [`r/.Rprofile`](r/.Rprofile). Linked to `~/.Rprofile` on all platforms.
+
+R loads the project-level `.Rprofile` (if present) instead of the global one, so this profile is silently skipped in projects that have their own (e.g. renv projects). This is the correct behaviour — project reproducibility should not depend on personal config.
+
+What it sets:
+
+| Setting | Scope | Purpose |
+|---------|-------|---------|
+| `renv.config.pak.enabled = TRUE` | Always | Tells renv to use pak for faster parallel installs (falls back silently if pak is not installed) |
+| `warn = 1` | Interactive | Show warnings immediately instead of deferring to end of expression |
+| `usethis.full_name` | Interactive | Used by usethis for package authorship, licenses, etc. |
+| devtools + usethis | Interactive | Auto-attached so `load_all()`, `test()`, `use_r()` etc. work without namespace prefixes |
+| `pak::handle_package_not_found()` | Interactive (R >= 4.0) | When `library(pkg)` fails, pak offers to install the missing package |
+
+For the full benefit, install pak on each machine:
+
+```r
+install.packages("pak", repos = sprintf(
+  "https://r-lib.github.io/p/pak/stable/%s/%s/%s",
+  .Platform$pkgType, R.Version()$os, R.Version()$arch
+))
+```
+
 ## Repository layout
 
 | Path | Purpose |
@@ -74,6 +99,7 @@ If the editor theme does not apply, open **Tools → Global Options → Appearan
 | `git/gitattributes_global.unix` / `git/gitattributes_global.windows` | Global attributes (per OS) |
 | `script/bootstrap` | **Recommended:** Git + app symlinks |
 | `script/bootstrap-git` | Git global configuration only |
-| `script/link-app-settings` | Cursor / VS Code / RStudio symlinks only |
+| `script/link-app-settings` | Cursor / VS Code / RStudio / R symlinks only |
 | `editor/settings.json` | Cursor / VS Code user settings |
 | `rstudio/rstudio-prefs.json` | RStudio user preferences |
+| `r/.Rprofile` | Global R profile (pak, devtools, usethis) |

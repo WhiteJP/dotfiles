@@ -1,9 +1,10 @@
 {
-  "editor_theme": "Pastel On Dark",
-  "save_workspace": "never",
-  "load_workspace": false,
-  "check_for_updates": false,
-  "insert_native_pipe_operator": true,
-  "rainbow_parentheses": true,
-  "soft_wrap_r_files": true
+    "editor_theme": "Pastel On Dark",
+    "save_workspace": "never",
+    "load_workspace": false,
+    "check_for_updates": false,
+    "insert_native_pipe_operator": true,
+    "rainbow_parentheses": true,
+    "soft_wrap_r_files": true,
+    "jobs_tab_visibility": "shown"
 }
